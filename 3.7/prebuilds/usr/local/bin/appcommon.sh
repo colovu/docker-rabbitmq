@@ -183,7 +183,7 @@ rabbitmq_create_config_file() {
       {cluster_partition_handling, $RABBITMQ_CLUSTER_PARTITION_HANDLING},
       {default_vhost, <<"$RABBITMQ_VHOST">>},
       {default_user, <<"$RABBITMQ_USERNAME">>},
-      {default_permissions, [<<".*">>, <<".*">>, <<".*">>]}
+      {default_permissions, [<<".*">>, <<".*">>, <<".*">>]},
       {loopback_users,[none]}
 EOF
 
