@@ -64,6 +64,12 @@ export RABBITMQ_NODE_TYPE="${RABBITMQ_NODE_TYPE:-stats}"
 export RABBITMQ_VHOST="${RABBITMQ_VHOST:-/}"
 export RABBITMQ_ENABLE_PLUGINS="${RABBITMQ_ENABLE_PLUGINS:-}"
 
+# STOMP Plug-ins Settings
+export RABBITMQ_STOMP_USERNAME="${RABBITMQ_STOMP_USERNAME:-admin}"
+export RABBITMQ_STOMP_PASSWORD="${RABBITMQ_STOMP_PASSWORD:-colovu}"
+export RABBITMQ_STOMP_VHOST="${RABBITMQ_STOMP_VHOST:-${RABBITMQ_VHOST}}"
+export RABBITMQ_STOMP_PORT_NUMBER="${RABBITMQ_STOMP_PORT_NUMBER:-61613}"
+
 # LDAP Settings
 export RABBITMQ_ENABLE_LDAP="${RABBITMQ_ENABLE_LDAP:-no}"
 export RABBITMQ_LDAP_TLS="${RABBITMQ_LDAP_TLS:-no}"
@@ -166,6 +172,7 @@ rabbitmq_create_config_file() {
     is_boolean_yes "$RABBITMQ_ENABLE_LDAP" && auth_backend="{auth_backends, [rabbit_auth_backend_ldap]},"
     is_boolean_yes "$RABBITMQ_LDAP_TLS" && separator=","
 
+    # 配置基本参数
     cat > "${RABBITMQ_CONFIG_FILE}" <<EOF
 [
   {rabbit,
@@ -179,6 +186,7 @@ rabbitmq_create_config_file() {
       {default_permissions, [<<".*">>, <<".*">>, <<".*">>]}
 EOF
 
+    # 配置 LDAP 参数 
     if is_boolean_yes "$RABBITMQ_ENABLE_LDAP"; then
         cat >> "${RABBITMQ_CONFIG_FILE}" <<EOF
     ]
@@ -197,6 +205,24 @@ EOF
         fi
     fi
 
+    # 配置 STOMP 插件参数
+    #       {tcp_listeners, [{"0.0.0.0", ${RABBITMQ_STOMP_PORT_NUMBER}}, {"::1",${RABBITMQ_STOMP_PORT_NUMBER}}]},
+    for plugs in ${RABBITMQ_ENABLE_PLUGINS}; do
+        if [[ "$plugs" = "rabbitmq_stomp" ]]; then
+            LOG_D "Set default parameter for plugin: $plugs"
+            cat >> "${RABBITMQ_CONFIG_FILE}" <<EOF
+    ]
+  },
+  {rabbitmq_stomp,
+    [
+      {default_user, [{login, "${RABBITMQ_STOMP_USERNAME}"}, {passcode, "${RABBITMQ_STOMP_PASSWORD}"}]},
+      {tcp_listeners, [{"0.0.0.0", ${RABBITMQ_STOMP_PORT_NUMBER}}]},
+      {default_vhost, <<"${RABBITMQ_STOMP_VHOST}">>}
+EOF
+        fi
+    done  
+
+    # 配置 management 插件参数
     cat >> "${RABBITMQ_CONFIG_FILE}" <<EOF
     ]
   },

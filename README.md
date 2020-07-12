@@ -505,6 +505,28 @@ rabbitmq:
 
 
 
+### STOMP配置参数
+
+在使用参数`RABBITMQ_ENABLE_PLUGINS`启用`rabbitmq_stomp`插件后，以下配置参数有效：
+
+#### `RABBITMQ_STOMP_USERNAME`
+
+默认值：**admin**
+
+#### `RABBITMQ_STOMP_PASSWORD`
+
+默认值：**colovu**
+
+#### `RABBITMQ_STOMP_VHOST`
+
+默认值：**RABBITMQ_VHOST**设置的值。
+
+#### `RABBITMQ_STOMP_PORT_NUMBER`
+
+默认值：**61613**
+
+
+
 ### LDAP配置参数
 
 在配置服务器使用 LDAP 做相关数据存储及验证时，可以使用以下参数配置相关的 LDAP 服务器信息：
