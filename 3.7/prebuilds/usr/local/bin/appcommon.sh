@@ -206,6 +206,7 @@ EOF
     fi
 
     # 配置 STOMP 插件参数
+    #       {tcp_listeners, [{"0.0.0.0", ${RABBITMQ_STOMP_PORT_NUMBER}}, {"::1",${RABBITMQ_STOMP_PORT_NUMBER}}]},
     for plugs in ${RABBITMQ_ENABLE_PLUGINS}; do
         if [[ "$plugs" = "rabbitmq_stomp" ]]; then
             LOG_D "Set default parameter for plugin: $plugs"
@@ -215,7 +216,7 @@ EOF
   {rabbitmq_stomp,
     [
       {default_user, [{login, "${RABBITMQ_STOMP_USERNAME}"}, {passcode, "${RABBITMQ_STOMP_PASSWORD}"}]},
-      {tcp_listeners, [{"0.0.0.0", ${RABBITMQ_STOMP_PORT_NUMBER}}, {"::1",${RABBITMQ_STOMP_PORT_NUMBER}}]},
+      {tcp_listeners, [{"0.0.0.0", ${RABBITMQ_STOMP_PORT_NUMBER}}]},
       {default_vhost, <<"${RABBITMQ_STOMP_VHOST}">>}
 EOF
         fi
