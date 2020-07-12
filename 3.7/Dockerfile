@@ -2,8 +2,8 @@ FROM colovu/ubuntu:18.04
 
 ARG rabbitmq_ver=3.7.25
 ARG erlang_ver=22.3.0
-#ARG LOCAL_SERVER=http://192.168.1.187/dist-files/
-ARG LOCAL_SERVER=""
+#ARG LOCAL_SERVER=http://192.168.50.18/dist-files/
+ARG LOCAL_SERVER="http://192.168.50.18/dist-files/"
 
 ENV APP_NAME=rabbitmq \
 	APP_EXEC=rabbitmq-server \
