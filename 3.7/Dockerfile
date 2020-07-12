@@ -55,6 +55,11 @@ RUN set -eux; \
 # 设置程序使用静默安装，而非交互模式；类似tzdata等程序需要使用静默安装
 	export DEBIAN_FRONTEND=noninteractive; \
 	\
+# 应用软件包及依赖
+	appDeps=" \
+		tzdata \
+	"; \
+	\
 # 安装临时使用的软件包，在使用完后会进行删除
 	fetchDeps=" \
 		wget \
@@ -69,7 +74,7 @@ RUN set -eux; \
 		gnupg \
 		dirmngr \
 	"; \
-	savedAptMark="$(apt-mark showmanual)"; \
+	savedAptMark="$(apt-mark showmanual) ${appDeps}"; \
 	apt-get update; \
 	apt-get install -y --no-install-recommends ${fetchDeps}; \
 	\
@@ -112,6 +117,12 @@ RUN set -eux; \
 # 使用 Ubuntu的 CA certificates
 	rmdir "${APP_CONFIG_DIR}/certs" "${APP_CONFIG_DIR}/private"; \
 	ln -sf /etc/ssl/certs /etc/ssl/private "${APP_CONFIG_DIR}"; \
+	\
+	apt-get install -y --no-install-recommends ${appDeps}; \
+	\
+# 为中国区使用重新配置tzdata信息
+	ln -fs /usr/share/zoneinfo/Asia/Shanghai /etc/localtime; \
+	dpkg-reconfigure -f noninteractive tzdata; \
 	\
 # 查找新安装的应用依赖软件包，并标识为'manual'，防止后续自动清理时被删除
 	apt-mark auto '.*' > /dev/null; \
@@ -312,7 +323,7 @@ RUN set -eux; \
 VOLUME ["/srv/conf", "/srv/data", "/srv/cert", "/var/log", "/var/run"]
 
 # 默认使用gosu切换为新建用户启动，必须保证端口在1024之上
-EXPOSE 4369 5671 5672 15672 25672
+EXPOSE 4369 5671 5672 15672 25672 61613
 
 # 容器初始化命令，默认存放在：/usr/local/bin/entrypoint.sh
 ENTRYPOINT ["entrypoint.sh"]

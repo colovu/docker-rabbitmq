@@ -184,6 +184,7 @@ rabbitmq_create_config_file() {
       {default_vhost, <<"$RABBITMQ_VHOST">>},
       {default_user, <<"$RABBITMQ_USERNAME">>},
       {default_permissions, [<<".*">>, <<".*">>, <<".*">>]}
+      {loopback_users,[none]}
 EOF
 
     # 配置 LDAP 参数 
@@ -419,7 +420,7 @@ docker_app_init() {
     LOG_D "Check init status of RabbitMQ..."
 
     # 检测配置文件是否存在
-    if [[ ! -f "$RABBITMQ_CONFIG_FILE" || ! -f "${RABBITMQ_DATA_DIR}/app_init_flag" ]]; then
+    if [[ ! -f "${RABBITMQ_CONF_DIR}/.app_init_flag" ]]; then
         LOG_I "No injected configuration file found, creating default config files..."
         [[ ! -f "${RABBITMQ_CONFIG_FILE}" ]] && rabbitmq_create_config_file
         [[ ! -f "${RABBITMQ_CONF_ENV_FILE}" ]] && rabbitmq_create_environment_file
@@ -428,12 +429,12 @@ docker_app_init() {
         chmod 400 "${RABBITMQ_COOKIE_FILE}"
         ln -sf "${RABBITMQ_COOKIE_FILE}" "${RABBITMQ_LIB_DIR}/.erlang.cookie"
 
-        echo "$(date '+%Y-%m-%d %H:%M:%S') : Init success." > ${RABBITMQ_DATA_DIR}/app_init_flag
+        echo "$(date '+%Y-%m-%d %H:%M:%S') : Init success." > ${RABBITMQ_CONF_DIR}/.app_init_flag
     else
         LOG_I "User injected custom configuration detected!"
     fi
 
-    if is_dir_empty "$RABBITMQ_DATA_DIR" || [[ ! -f "${RABBITMQ_DATA_DIR}/data_init_flag" ]]; then
+    if is_dir_empty "$RABBITMQ_DATA_DIR" || [[ ! -f "${APP_DATA_DIR}/.data_init_flag" ]]; then
         LOG_I "Deploying RabbitMQ from scratch..."
 
         ! is_rabbitmq_running && rabbitmq_start_bg
@@ -443,38 +444,39 @@ docker_app_init() {
         if [[ "$RABBITMQ_NODE_TYPE" != "stats" ]] && [[ -n "$RABBITMQ_CLUSTER_NODE_NAME" ]]; then
             rabbitmq_join_cluster "$RABBITMQ_CLUSTER_NODE_NAME" "$RABBITMQ_NODE_TYPE"
         fi
-        echo "$(date '+%Y-%m-%d %H:%M:%S') : Init success." > ${RABBITMQ_DATA_DIR}/data_init_flag
+
+        LOG_I "Enable RabbitMQ Plugins..."
+        if [[ "$RABBITMQ_NODE_TYPE" = "stats" ]]; then
+            rabbitmq_enable_plugin "rabbitmq_management"
+        else
+            rabbitmq_enable_plugin "rabbitmq_management_agent"
+        fi
+
+        if is_boolean_yes "$RABBITMQ_ENABLE_LDAP"; then
+            rabbitmq_enable_plugin "rabbitmq_auth_backend_ldap"
+        fi
+
+        if [[ ! -z "${RABBITMQ_ENABLE_PLUGINS}" ]]; then
+            for plugs in ${RABBITMQ_ENABLE_PLUGINS}; do
+                rabbitmq_enable_plugin "$plugs"
+            done
+        fi
+
+        echo "$(date '+%Y-%m-%d %H:%M:%S') : Init success." > ${APP_DATA_DIR}/.data_init_flag
     else
         LOG_I "Deploying RabbitMQ with persisted data..."
-    fi
-
-    LOG_I "Enable RabbitMQ Plugins..."
-    if [[ "$RABBITMQ_NODE_TYPE" = "stats" ]]; then
-        rabbitmq_enable_plugin "rabbitmq_management"
-    else
-        rabbitmq_enable_plugin "rabbitmq_management_agent"
-    fi
-
-    if is_boolean_yes "$RABBITMQ_ENABLE_LDAP"; then
-        rabbitmq_enable_plugin "rabbitmq_auth_backend_ldap"
-    fi
-
-    if [[ ! -z "${RABBITMQ_ENABLE_PLUGINS}" ]]; then
-        for plugs in ${RABBITMQ_ENABLE_PLUGINS}; do
-            rabbitmq_enable_plugin "$plugs"
-        done
     fi
 
     is_rabbitmq_running && rabbitmq_stop
 }
 
 # 用户自定义的应用初始化操作，依次执行目录initdb.d中的初始化脚本
-# 执行完毕后，会在 ${RABBITMQ_DATA_DIR} 目录中生成 custom_init_flag 文件
+# 执行完毕后，会在 ${RABBITMQ_DATA_DIR} 目录中生成 .custom_init_flag 文件
 docker_custom_init() {
     # 检测用户配置文件目录是否存在initdb.d文件夹，如果存在，尝试执行目录中的初始化脚本
     if [ -d "/srv/conf/${APP_NAME}/initdb.d" ]; then
     	# 检测数据存储目录是否存在已初始化标志文件；如果不存在，进行初始化操作
-    	if [ ! -f "${RABBITMQ_DATA_DIR}/custom_init_flag" ]; then
+    	if [ ! -f "${RABBITMQ_DATA_DIR}/.custom_init_flag" ]; then
             LOG_I "Process custom init scripts for ${APP_NAME}..."
 
     		# 检测目录权限，防止初始化失败
@@ -482,7 +484,7 @@ docker_custom_init() {
 
     		docker_process_init_files /srv/conf/${APP_NAME}/initdb.d/*
 
-    		echo "$(date '+%Y-%m-%d %H:%M:%S') : Init success." > ${RABBITMQ_DATA_DIR}/custom_init_flag
+    		echo "$(date '+%Y-%m-%d %H:%M:%S') : Init success." > ${RABBITMQ_DATA_DIR}/.custom_init_flag
     		LOG_I "Custom init for ${APP_NAME} complete."
     	else
     		LOG_I "Custom init for ${APP_NAME} already done before, skipping initialization."
