@@ -1,6 +1,12 @@
 #!/bin/bash
+# Ver: 1.0 by Endial Fang (endial@126.com)
 #
 # 从服务器（列表）下载相应软件包
+
+# Constants
+#CV_BASE="http://archive.colovu.com/dist-files/"
+#CV_BASE="http://10.37.129.2/dist-files/"
+CV_BASE=""
 
 # 检测软件包签名是否正确
 # 参数：
@@ -62,10 +68,13 @@ download_dist() {
     done
 
     echo "Downloading $name package"
-    for url in $base_urls; do
+    for url in $CV_BASE $base_urls; do
         if wget -O "$name" "$url$name" && [ -s "$name" ]; then
             if [ -n "$pgp_key" ]; then
                 wget -O "$name.asc" "$url$name.asc"
+                if [ ! -e "$name.asc" ]; then
+                    wget -O "$name.asc" "$url$name.sig"
+                fi
             fi
             success=1
             break
