@@ -1,0 +1,14 @@
+version: '3.6'
+
+services:
+  rabbitmq:
+    image: 'colovu/rabbitmq:latest'
+    ports:
+      - '5672:5672'
+      - '61613:61613'
+    environment:
+      - RABBITMQ_USERNAME=admin
+      - RABBITMQ_PASSWORD=colovu
+      - RABBITMQ_ENABLE_PLUGINS=rabbitmq_stomp
+      - RABBITMQ_STOMP_USERNAME=admin
+      - RABBITMQ_STOMP_PASSWORD=colovu
