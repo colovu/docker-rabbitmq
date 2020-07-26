@@ -39,7 +39,7 @@ export RABBITMQ_BIN_DIR="${RABBITMQ_BASE_DIR}/sbin"
 export RABBITMQ_CONFIG_FILE="${RABBITMQ_CONF_DIR}/rabbitmq.config"
 export RABBITMQ_ADVANCED_CONFIG_FILE="${RABBITMQ_CONF_DIR}/advanced.config"
 export RABBITMQ_CONF_ENV_FILE="${RABBITMQ_CONF_DIR}/rabbit-env.conf"
-export RABBITMQ_COOKIE_FILE="${APP_DATA_DIR}/.erlang.cookie"
+export RABBITMQ_COOKIE_FILE="${RABBITMQ_HOME_DIR}/.erlang.cookie"
 export RABBITMQ_PID_FILE="${APP_RUN_DIR}/rabbitmq.pid"
 
 # RabbitMQ locations
@@ -363,21 +363,28 @@ app_start_server_bg() {
     is_app_server_running && return
     LOG_I "Starting ${APP_NAME} in background..."
 
-    if [[ "${ENV_DEBUG:-false}" = true ]]; then
-        debug_execute "rabbitmq-server" &
-    else
-        debug_execute "rabbitmq-server" >/dev/null 2>&1 &
+    local start_command=()
+    if _is_run_as_root ; then
+        start_command+=( gosu ${APP_USER} )
     fi
-    export RABBITMQ_PID="$!"
-    LOG_D "  PID of ${APP_NAME} service: ${RABBITMQ_PID}"
+    start_command+=( rabbitmq-server )
+    debug_execute "${start_command}" &
+
+    #export RABBITMQ_PID="$!"
 
 	# 通过命令或特定端口检测应用是否就绪
     LOG_I "Checking ${APP_NAME} ready status..."
+    local start_check=()
+    if _is_run_as_root ; then
+        start_check+=( gosu ${APP_USER} )
+    fi
+
+    # rabbitmqctl wait 命令需要系统安装 procps 软件包
+    start_check+=( rabbitmqctl )
     local counter=0
-    while ! debug_execute "rabbitmqctl" wait --pid "$RABBITMQ_PID" --timeout 5; do
+    while ! debug_execute "${start_check}" wait "${RABBITMQ_PID_FILE}" --timeout 5; do
         LOG_D "Waiting for ${APP_NAME} to start..."
         counter=$((counter + 1))
-
         if [[ $counter -eq 10 ]]; then
             LOG_E "Couldn't start ${APP_NAME} in background."
             exit 1
@@ -394,14 +401,19 @@ app_stop_server() {
     is_app_server_running || return
     LOG_I "Stopping ${APP_NAME}..."
 
-    debug_execute "rabbitmqctl" stop
+    local start_command=()
+    if _is_run_as_root ; then
+        start_command+=( gosu ${APP_USER} )
+    fi
+    start_command+=( rabbitmqctl )
+    debug_execute "${start_command}" stop
 
     local counter=10
     while [[ "$counter" -ne 0 ]] && is_app_server_running; do
         LOG_D "Waiting for ${APP_NAME} to stop..."
         sleep 1
         counter=$((counter - 1))
-        export RABBITMQ_PID=""
+        rm -rf ${RABBITMQ_PID_FILE} || :
     done
 }
 
@@ -413,12 +425,13 @@ app_stop_server() {
 is_app_server_running() {
     LOG_D "Check if ${APP_NAME} is running..."
     #local pid
-    #pid="$(get_pid_from_file "${RABBITMQ_PID_FILE}")"
-    pid=${RABBITMQ_PID:-}
+    pid="$(get_pid_from_file ${RABBITMQ_PID_FILE})"
 
     if [[ -z "${pid}" ]]; then
+        LOG_D "Service PID is NULL"
         false
     else
+        LOG_D "Service PID is: ${pid}, check running stats..."
         is_service_running "${pid}"
     fi
 }
@@ -435,7 +448,7 @@ app_clean_tmp_file() {
 app_clean_from_restart() {
     LOG_D "Clean ${APP_NAME} tmp files for restart..."
     local -r -a files=(
-
+        "${RABBITMQ_PID_FILE}"
     )
 
     for file in ${files[@]}; do
