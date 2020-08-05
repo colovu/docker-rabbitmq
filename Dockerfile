@@ -9,7 +9,7 @@ ARG apt_source=default
 
 # 外部指定应用版本信息，如 "--build-arg app_ver=6.0.0"
 ARG app_ver=3.8.3
-ARG erlang_ver=22.3.0
+ARG erlang_ver=22.3.2
 
 # 编译镜像时指定本地服务器地址，如 "--build-arg local_url=http://172.29.14.108/dist-files/"
 ARG local_url=""
@@ -55,7 +55,7 @@ RUN \
 	\
 # 为应用创建对应的组、用户、相关目录
 	export APP_VERSION=${app_ver}; \
-	export OTP_VERSION=22.3.2; \
+	export OTP_VERSION=${erlang_ver}; \
 	export OPENSSL_VERSION=1.1.1g; \
 	export APP_DIRS="${APP_DEF_DIR:-} ${APP_CONF_DIR:-} ${APP_DATA_DIR:-} ${APP_CACHE_DIR:-} ${APP_RUN_DIR:-} ${APP_LOG_DIR:-} ${APP_CERT_DIR:-} ${APP_DATA_LOG_DIR:-} ${APP_HOME_DIR:-${APP_DATA_DIR}}"; \
 	mkdir -p ${APP_DIRS}; \
