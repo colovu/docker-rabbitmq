@@ -5,12 +5,12 @@
 
 # 加载依赖脚本
 . /usr/local/scripts/libcommon.sh       # 通用函数库
+
 . /usr/local/scripts/libfile.sh
 . /usr/local/scripts/libfs.sh
 . /usr/local/scripts/libos.sh
 . /usr/local/scripts/libservice.sh
 . /usr/local/scripts/libvalidations.sh
-. /usr/local/scripts/libnet.sh
 
 # 函数列表
 
@@ -21,79 +21,76 @@
 #   *_* : 应用配置文件使用的全局变量，变量名根据配置项定义
 # 返回值:
 #   可以被 'eval' 使用的序列化输出
-docker_app_env() {
-    cat <<"EOF"
-# Common Settings
-export ENV_DEBUG=${ENV_DEBUG:-false}
+app_env() {
+    cat <<-'EOF'
+		# Common Settings
+		export ENV_DEBUG=${ENV_DEBUG:-false}
 
-# Paths
-export RABBITMQ_HOME="${APP_HOME_DIR}"
-export RABBITMQ_BASE_DIR="${RABBITMQ_BASE_DIR:-${APP_HOME_DIR}}"
-export RABBITMQ_CONF_DIR="${RABBITMQ_CONF_DIR:-${APP_CONF_DIR}}"
-export RABBITMQ_DATA_DIR="${RABBITMQ_DATA_DIR:-${APP_DATA_DIR}/mnesia}"
-export RABBITMQ_LOG_DIR="${RABBITMQ_LOG_DIR:-${APP_LOG_DIR}}"
-export RABBITMQ_HOME_DIR="${APP_DATA_DIR}/.rabbitmq"
-export RABBITMQ_LIB_DIR="${RABBITMQ_BASE_DIR}/var/lib/rabbitmq"
-export RABBITMQ_PLUGINS_DIR="${RABBITMQ_BASE_DIR}/plugins"
-export RABBITMQ_BIN_DIR="${RABBITMQ_BASE_DIR}/sbin"
+		# Paths
+		export RABBITMQ_HOME="${APP_HOME_DIR}"
+		export RABBITMQ_BASE_DIR="${RABBITMQ_BASE_DIR:-${APP_HOME_DIR}}"
+		export RABBITMQ_CONF_DIR="${RABBITMQ_CONF_DIR:-${APP_CONF_DIR}}"
+		export RABBITMQ_DATA_DIR="${RABBITMQ_DATA_DIR:-${APP_DATA_DIR}/mnesia}"
+		export RABBITMQ_LOG_DIR="${RABBITMQ_LOG_DIR:-${APP_LOG_DIR}}"
+		export RABBITMQ_HOME_DIR="${APP_DATA_DIR}/.rabbitmq"
+		export RABBITMQ_LIB_DIR="${RABBITMQ_BASE_DIR}/var/lib/rabbitmq"
+		export RABBITMQ_PLUGINS_DIR="${RABBITMQ_BASE_DIR}/plugins"
+		export RABBITMQ_BIN_DIR="${RABBITMQ_BASE_DIR}/sbin"
 
-export RABBITMQ_CONFIG_FILE="${RABBITMQ_CONF_DIR}/rabbitmq.config"
-export RABBITMQ_ADVANCED_CONFIG_FILE="${RABBITMQ_CONF_DIR}/advanced.config"
-export RABBITMQ_CONF_ENV_FILE="${RABBITMQ_CONF_DIR}/rabbit-env.conf"
-export RABBITMQ_COOKIE_FILE="${RABBITMQ_HOME_DIR}/.erlang.cookie"
-export RABBITMQ_PID_FILE="${APP_RUN_DIR}/rabbitmq.pid"
+		export RABBITMQ_CONFIG_FILE="${RABBITMQ_CONF_DIR}/rabbitmq.config"
+		export RABBITMQ_ADVANCED_CONFIG_FILE="${RABBITMQ_CONF_DIR}/advanced.config"
+		export RABBITMQ_CONF_ENV_FILE="${RABBITMQ_CONF_DIR}/rabbit-env.conf"
+		export RABBITMQ_COOKIE_FILE="${RABBITMQ_HOME_DIR}/.erlang.cookie"
+		export RABBITMQ_PID_FILE="${APP_RUN_DIR}/rabbitmq.pid"
 
-# RabbitMQ locations
-export RABBITMQ_MNESIA_BASE="${RABBITMQ_DATA_DIR}"
+		# RabbitMQ locations
+		export RABBITMQ_MNESIA_BASE="${RABBITMQ_DATA_DIR}"
 
-# Users
+		# Users
 
-# Cluster configuration
-export RABBITMQ_CLUSTER_NODE_NAME="${RABBITMQ_CLUSTER_NODE_NAME:-}"
-export RABBITMQ_CLUSTER_PARTITION_HANDLING="${RABBITMQ_CLUSTER_PARTITION_HANDLING:-ignore}"
-export RABBITMQ_ERL_COOKIE="${RABBITMQ_ERL_COOKIE:-}"
+		# Cluster configuration
+		export RABBITMQ_CLUSTER_NODE_NAME="${RABBITMQ_CLUSTER_NODE_NAME:-}"
+		export RABBITMQ_CLUSTER_PARTITION_HANDLING="${RABBITMQ_CLUSTER_PARTITION_HANDLING:-ignore}"
+		export RABBITMQ_ERL_COOKIE="${RABBITMQ_ERL_COOKIE:-}"
 
-# RabbitMQ settings
-export RABBITMQ_DISK_FREE_LIMIT="${RABBITMQ_DISK_FREE_LIMIT:-{mem_relative, 1.0\}}"
-export RABBITMQ_MANAGER_BIND_IP="${RABBITMQ_MANAGER_BIND_IP:-0.0.0.0}"
-export RABBITMQ_MANAGER_PORT_NUMBER="${RABBITMQ_MANAGER_PORT_NUMBER:-15672}"
-export RABBITMQ_NODE_NAME="${RABBITMQ_NODE_NAME:-rabbit@localhost}"
-export RABBITMQ_NODE_PORT_NUMBER="${RABBITMQ_NODE_PORT_NUMBER:-5672}"
-export RABBITMQ_NODE_TYPE="${RABBITMQ_NODE_TYPE:-stats}"
-export RABBITMQ_VHOST="${RABBITMQ_VHOST:-/}"
-export RABBITMQ_ENABLE_PLUGINS="${RABBITMQ_ENABLE_PLUGINS:-}"
+		# RabbitMQ settings
+		export RABBITMQ_DISK_FREE_LIMIT="${RABBITMQ_DISK_FREE_LIMIT:-{mem_relative, 1.0\}}"
+		export RABBITMQ_MANAGER_BIND_IP="${RABBITMQ_MANAGER_BIND_IP:-0.0.0.0}"
+		export RABBITMQ_MANAGER_PORT_NUMBER="${RABBITMQ_MANAGER_PORT_NUMBER:-15672}"
+		export RABBITMQ_NODE_NAME="${RABBITMQ_NODE_NAME:-rabbit@localhost}"
+		export RABBITMQ_NODE_PORT_NUMBER="${RABBITMQ_NODE_PORT_NUMBER:-5672}"
+		export RABBITMQ_NODE_TYPE="${RABBITMQ_NODE_TYPE:-stats}"
+		export RABBITMQ_VHOST="${RABBITMQ_VHOST:-/}"
+		export RABBITMQ_ENABLE_PLUGINS="${RABBITMQ_ENABLE_PLUGINS:-}"
 
-# STOMP Plug-ins Settings
-export RABBITMQ_STOMP_USERNAME="${RABBITMQ_STOMP_USERNAME:-admin}"
-export RABBITMQ_STOMP_PASSWORD="${RABBITMQ_STOMP_PASSWORD:-colovu}"
-export RABBITMQ_STOMP_VHOST="${RABBITMQ_STOMP_VHOST:-${RABBITMQ_VHOST}}"
-export RABBITMQ_STOMP_PORT_NUMBER="${RABBITMQ_STOMP_PORT_NUMBER:-61613}"
+		# STOMP Plug-ins Settings
+		export RABBITMQ_STOMP_USERNAME="${RABBITMQ_STOMP_USERNAME:-admin}"
+		export RABBITMQ_STOMP_PASSWORD="${RABBITMQ_STOMP_PASSWORD:-colovu}"
+		export RABBITMQ_STOMP_VHOST="${RABBITMQ_STOMP_VHOST:-${RABBITMQ_VHOST}}"
+		export RABBITMQ_STOMP_PORT_NUMBER="${RABBITMQ_STOMP_PORT_NUMBER:-61613}"
 
-# LDAP Settings
-export RABBITMQ_ENABLE_LDAP="${RABBITMQ_ENABLE_LDAP:-no}"
-export RABBITMQ_LDAP_TLS="${RABBITMQ_LDAP_TLS:-no}"
-export RABBITMQ_LDAP_SERVER="${RABBITMQ_LDAP_SERVER:-}"
-export RABBITMQ_LDAP_SERVER_PORT="${RABBITMQ_LDAP_SERVER_PORT:-389}"
-export RABBITMQ_LDAP_USER_DN_PATTERN="${RABBITMQ_LDAP_USER_DN_PATTERN:-}"
-export RABBITMQ_SSL_CERT_FILE="${RABBITMQ_SSL_CERT_FILE:-}"
-export RABBITMQ_SSL_KEY_FILE="${RABBITMQ_SSL_KEY_FILE:-}"
-export RABBITMQ_SSL_CA_FILE="${RABBITMQ_SSL_CA_FILE:-}"
+		# LDAP Settings
+		export RABBITMQ_ENABLE_LDAP="${RABBITMQ_ENABLE_LDAP:-no}"
+		export RABBITMQ_LDAP_TLS="${RABBITMQ_LDAP_TLS:-no}"
+		export RABBITMQ_LDAP_SERVER="${RABBITMQ_LDAP_SERVER:-}"
+		export RABBITMQ_LDAP_SERVER_PORT="${RABBITMQ_LDAP_SERVER_PORT:-389}"
+		export RABBITMQ_LDAP_USER_DN_PATTERN="${RABBITMQ_LDAP_USER_DN_PATTERN:-}"
+		export RABBITMQ_SSL_CERT_FILE="${RABBITMQ_SSL_CERT_FILE:-}"
+		export RABBITMQ_SSL_KEY_FILE="${RABBITMQ_SSL_KEY_FILE:-}"
+		export RABBITMQ_SSL_CA_FILE="${RABBITMQ_SSL_CA_FILE:-}"
 
-# Log, print all log messages to standard output by default
-export RABBITMQ_LOGS="${RABBITMQ_LOGS:--}"
+		# Log, print all log messages to standard output by default
+		export RABBITMQ_LOGS="${RABBITMQ_LOGS:--}"
 
-# Authentication
-export RABBITMQ_USERNAME="${RABBITMQ_USERNAME:-colovu}"
-export RABBITMQ_PASSWORD="${RABBITMQ_PASSWORD:-pass4colovu}"
-export RABBITMQ_HASHED_PASSWORD="${RABBITMQ_HASHED_PASSWORD:-}"
+		# Authentication
+		export RABBITMQ_USERNAME="${RABBITMQ_USERNAME:-colovu}"
+		export RABBITMQ_PASSWORD="${RABBITMQ_PASSWORD:-pass4colovu}"
+		export RABBITMQ_HASHED_PASSWORD="${RABBITMQ_HASHED_PASSWORD:-}"
 EOF
 }
 
 
 # 生成 RabbitMQ 配置文件
-# 全局变量:
-#   RABBITMQ_CONF_DIR
-#   RABBITMQ_*
 rabbitmq_create_config_file() {
     LOG_D "Creating configuration file..."
     local auth_backend=""
@@ -207,9 +204,6 @@ rabbitmq_create_erlang_cookie() {
 }
 
 # 启用 RabbitMQ 插件
-# 全局变量:
-#   RABBITMQ_BIN_DIR
-#   BITNAMI_DEBUG
 # Arguments:
 #   $1 - Plugin to enable
 rabbitmq_enable_plugin() {
@@ -223,8 +217,6 @@ rabbitmq_enable_plugin() {
 
 
 # 检测 RabbitMQ 节点是否在运行状态
-# 全局变量:
-#   RABBITMQ_BIN_DIR
 # 参数:
 #   $1 - Node to check
 node_is_running() {
@@ -238,9 +230,6 @@ node_is_running() {
 }
 
 # 更改 RabbitMQ 用户密码
-# 全局变量:
-#   ENV_DEBUG
-#   RABBITMQ_BIN_DIR
 # 参数:
 #   $1 - 用户名
 #   $2 - 用户新密码
@@ -256,9 +245,6 @@ rabbitmq_change_password() {
 }
 
 # 将当前 RabbitMQ 节点加入指定集群
-# 全局变量:
-#   ENV_DEBUG
-#   RABBITMQ_BIN_DIR
 # 参数:
 #   $1 - 集群节点名
 #   $2 - 节点类型
@@ -352,9 +338,48 @@ app_enable_remote_connections() {
 	
 }
 
+# 检测依赖的服务端口是否就绪；该脚本依赖系统工具 'netcat'
+# 参数:
+#   $1 - host:port
+app_wait_service() {
+    local serviceport=${1:?Missing server info}
+    local service=${serviceport%%:*}
+    local port=${serviceport#*:}
+    local retry_seconds=5
+    local max_try=100
+    let i=1
+
+    if [[ -z "$(which nc)" ]]; then
+        LOG_E "Nedd nc installed before, command: \"apt-get install netcat\"."
+        exit 1
+    fi
+
+    LOG_I "[0/${max_try}] check for ${service}:${port}..."
+
+    set +e
+    nc -z ${service} ${port}
+    result=$?
+
+    until [ $result -eq 0 ]; do
+      LOG_D "  [$i/${max_try}] not available yet"
+      if (( $i == ${max_try} )); then
+        LOG_E "${service}:${port} is still not available; giving up after ${max_try} tries."
+        exit 1
+      fi
+      
+      LOG_I "[$i/${max_try}] try in ${retry_seconds}s once again ..."
+      let "i++"
+      sleep ${retry_seconds}
+
+      nc -z ${service} ${port}
+      result=$?
+    done
+
+    set -e
+    LOG_I "[$i/${max_try}] ${service}:${port} is available."
+}
+
 # 以后台方式启动应用服务，并等待启动就绪
-# 全局变量:
-#   APP_*
 app_start_server_bg() {
     is_app_server_running && return
     LOG_I "Starting ${APP_NAME} in background..."
@@ -391,16 +416,11 @@ app_start_server_bg() {
 }
 
 # 停止应用服务
-# 全局变量:
-#   APP_*
 app_stop_server() {
     is_app_server_running || return
     LOG_I "Stopping ${APP_NAME}..."
 
     local start_command=()
-    if _is_run_as_root ; then
-        start_command+=( gosu ${APP_USER} )
-    fi
     start_command+=( rabbitmqctl )
     debug_execute "${start_command}" stop
 
@@ -414,10 +434,6 @@ app_stop_server() {
 }
 
 # 检测应用服务是否在后台运行中
-# 全局变量:
-#   ZOO_*
-# 返回值:
-#   布尔值
 is_app_server_running() {
     LOG_D "Check if ${APP_NAME} is running..."
     local pid
@@ -437,8 +453,6 @@ app_clean_tmp_file() {
 }
 
 # 在重新启动容器时，删除标志文件及必须删除的临时文件 (容器重新启动)
-# 全局变量:
-#   APP_*
 app_clean_from_restart() {
     LOG_D "Clean ${APP_NAME} tmp files for restart..."
     local -r -a files=(
@@ -455,7 +469,7 @@ app_clean_from_restart() {
 
 # 应用默认初始化操作
 # 执行完毕后，生成文件 ${APP_CONF_DIR}/.app_init_flag 及 ${APP_DATA_DIR}/.data_init_flag 文件
-docker_app_init() {
+app_default_init() {
 	app_clean_from_restart
     LOG_D "Check init status of ${APP_NAME}..."
 
@@ -478,8 +492,8 @@ docker_app_init() {
 
     if [[ ! -f "${APP_DATA_DIR}/.data_init_flag" ]]; then
         LOG_I "Deploying ${APP_NAME} from scratch..."
-		
-        # 检测服务是否运行中如果未运行，则启动后台服务
+
+		# 检测服务是否运行中如果未运行，则启动后台服务
         is_app_server_running || app_start_server_bg
 
         rabbitmq_change_password "$RABBITMQ_USERNAME" "$RABBITMQ_PASSWORD"
@@ -515,7 +529,7 @@ docker_app_init() {
 
 # 用户自定义的前置初始化操作，依次执行目录 preinitdb.d 中的初始化脚本
 # 执行完毕后，生成文件 ${APP_DATA_DIR}/.custom_preinit_flag
-docker_custom_preinit() {
+app_custom_preinit() {
     LOG_D "Check custom pre-init status of ${APP_NAME}..."
 
     # 检测用户配置文件目录是否存在 preinitdb.d 文件夹，如果存在，尝试执行目录中的初始化脚本
@@ -526,7 +540,7 @@ docker_custom_preinit() {
             LOG_I "Process custom pre-init scripts from /srv/conf/${APP_NAME}/preinitdb.d..."
 
             # 检索所有可执行脚本，排序后执行
-            find "/srv/conf/${APP_NAME}/preinitdb.d/" -type f -regex ".*\.\(sh\)" | sort | docker_process_init_files
+            find "/srv/conf/${APP_NAME}/preinitdb.d/" -type f -regex ".*\.\(sh\)" | sort | process_init_files
 
             touch ${APP_DATA_DIR}/.custom_preinit_flag
             echo "$(date '+%Y-%m-%d %H:%M:%S') : Init success." >> ${APP_DATA_DIR}/.custom_preinit_flag
@@ -539,13 +553,13 @@ docker_custom_preinit() {
 
 # 用户自定义的应用初始化操作，依次执行目录initdb.d中的初始化脚本
 # 执行完毕后，生成文件 ${APP_DATA_DIR}/.custom_init_flag
-docker_custom_init() {
+app_custom_init() {
     LOG_D "Check custom init status of ${APP_NAME}..."
 
     # 检测用户配置文件目录是否存在 initdb.d 文件夹，如果存在，尝试执行目录中的初始化脚本
     if [ -d "/srv/conf/${APP_NAME}/initdb.d" ]; then
     	# 检测数据存储目录是否存在已初始化标志文件；如果不存在，检索可执行脚本文件并进行初始化操作
-    	if [[ -n $(find "/srv/conf/${APP_NAME}/initdb.d/" -type f -regex ".*\.\(sh\)") ]] && \
+    	if [[ -n $(find "/srv/conf/${APP_NAME}/initdb.d/" -type f -regex ".*\.\(sh\|sql\|sql.gz\)") ]] && \
             [[ ! -f "${APP_DATA_DIR}/.custom_init_flag" ]]; then
             LOG_I "Process custom init scripts from /srv/conf/${APP_NAME}/initdb.d..."
 
@@ -553,7 +567,7 @@ docker_custom_init() {
             is_app_server_running || app_start_server_bg
 
             # 检索所有可执行脚本，排序后执行
-    		find "/srv/conf/${APP_NAME}/initdb.d/" -type f -regex ".*\.\(sh\)" | sort | while read -r f; do
+    		find "/srv/conf/${APP_NAME}/initdb.d/" -type f -regex ".*\.\(sh\|sql\|sql.gz\)" | sort | while read -r f; do
                 case "$f" in
                     *.sh)
                         if [[ -x "$f" ]]; then
@@ -562,6 +576,8 @@ docker_custom_init() {
                             LOG_D "Sourcing $f"; . "$f"
                         fi
                         ;;
+                    #*.sql)    LOG_D "Executing $f"; postgresql_execute "$PG_DATABASE" "$PG_INITSCRIPTS_USERNAME" "$PG_INITSCRIPTS_PASSWORD" < "$f";;
+                    #*.sql.gz) LOG_D "Executing $f"; gunzip -c "$f" | postgresql_execute "$PG_DATABASE" "$PG_INITSCRIPTS_USERNAME" "$PG_INITSCRIPTS_PASSWORD";;
                     *)        LOG_D "Ignoring $f" ;;
                 esac
             done
