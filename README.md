@@ -8,8 +8,8 @@
 
 **版本信息**：
 
-- 3.8、3.8.3、latest （ErLang 22.3.0）
-- 3.7、3.7.25 （ErLang 22.3.0）
+- 3.8、latest （ErLang 22.3.0）
+- 3.7 （ErLang 22.3.0）
 
 **镜像信息**
 
@@ -22,13 +22,13 @@
 Docker 快速启动命令：
 
 ```shell
-$ docker run -d --name rabbitmq colovu/rabbitmq:latest
+$ docker run -d colovu/rabbitmq
 ```
 
 Docker-Compose 快速启动命令：
 
 ```shell
-$ curl -sSL -O https://raw.githubusercontent.com/colovu/docker-rabbitmq/master/docker-compose.yml
+$ curl -sSL https://raw.githubusercontent.com/colovu/docker-imgname/master/docker-compose.yml > docker-compose.yml
 
 $ docker-compose up -d
 ```
@@ -43,11 +43,11 @@ $ docker-compose up -d
 
 ### 端口
 
-- 4369：EarLang epmd 默认端口（可配置）
-- 5671：RabbitMQ 默认 TCP TLS 监听端口（可配置）
-- 5672：RabbitMQ 默认 TCP 监听端口（可配置）
+- 4369：EarLang epmd 默认端口，用于集群邻居发现（可配置）
+- 5671：RabbitMQ AMQP 0.9.1 Clients 使用（可配置）
+- 5672：RabbitMQ AMQP 1.0 Clients 使用（可配置）
 - 15671：RabbitMQ 默认 HTTPS Web 端口（可配置）
-- 15672：RabbitMQ 默认 Web 端口（可配置）
+- 25672：RabbitMQ ErLang 分布式节点/工具通讯（可配置）
 - 61613：STOMP 插件默认访问端口（可配置）
 - 61614：STOMP 插件默认 TLS 访问端口（可配置）
 - 1883：MQTT 插件默认访问端口（可配置）
@@ -58,9 +58,9 @@ $ docker-compose up -d
 镜像默认提供以下数据卷定义，默认数据分别存储在自动生成的应用名对应`rabbitmq`子目录中：
 
 ```shell
-/var/log			# RabbitMQ 日志输出
-/srv/conf			# RabbitMQ 配置文件
-/srv/data			# RabbitMQ 数据存储
+/var/log                # RabbitMQ 日志输出
+/srv/conf               # RabbitMQ 配置文件
+/srv/data               # RabbitMQ 数据存储
 ```
 
 如果需要持久化存储相应数据，需要**在宿主机建立本地目录**，并在使用镜像初始化容器时进行映射。宿主机相关的目录中如果不存在对应应用 RabbitMQ 的子目录或相应数据文件，则容器会在初始化时创建相应目录及文件。
