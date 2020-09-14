@@ -86,7 +86,7 @@ RUN create_user && prepare_env
 
 # 从预处理过程中拷贝软件包(Optional)
 #COPY --from=0 /usr/local/bin/ /usr/local/bin
-COPY --from=builder /usr/local/rabbitmq_server-3.8.3/ /usr/local/rabbitmq
+COPY --from=builder /usr/local/rabbitmq_server-3.7.25/ /usr/local/rabbitmq
 #COPY --from=builder /usr/local/redis/conf /etc/redis
 
 # 编译安装 Openssl 及 Erlang
@@ -127,7 +127,7 @@ RUN export DEBIAN_FRONTEND=noninteractive; \
 		0x7953AC1FBC3DC8B3B292393ED5E9E43F7DF9EE8C \
 		0xE5E52560DD91C556DDBDA5D02064C53641C25E5D"; \
 	[ ! -z ${local_url} ] && localURL=${local_url}/openssl; \
-	DIST_URLS="${localURL} \
+	DIST_URLS="${localURL:-} \
 		https://www.openssl.org/source \
 		"; \
 	download_pkg unpack ${DIST_NAME} "${DIST_URLS}" -s "${DIST_SHA256}"; \
@@ -155,7 +155,7 @@ RUN export DEBIAN_FRONTEND=noninteractive; \
 	DIST_NAME="OTP-${OTP_VERSION}.tar.gz"; \
 	DIST_SHA256="4a3719c71a7998e4f57e73920439b4b1606f7c045e437a0f0f9f1613594d3eaa"; \
 	[ ! -z ${local_url} ] && localURL=${local_url}/erlang; \
-	DIST_URLS="${localURL} \
+	DIST_URLS="${localURL:-} \
 		https://github.com/erlang/otp/archive \
 		"; \
 	download_pkg unpack ${DIST_NAME} "${DIST_URLS}" -s "${DIST_SHA256}"; \
