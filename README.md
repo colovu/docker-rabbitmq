@@ -22,7 +22,7 @@
 Docker 快速启动命令：
 
 ```shell
-$ docker run -d colovu/rabbitmq
+$ docker run -d colovu/rabbitmq:3.8
 ```
 
 Docker-Compose 快速启动命令：

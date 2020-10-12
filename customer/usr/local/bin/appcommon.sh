@@ -385,7 +385,7 @@ app_start_server_bg() {
     LOG_I "Starting ${APP_NAME} in background..."
 
     local start_command=()
-    if _is_run_as_root ; then
+    if is_root ; then
         start_command+=( gosu ${APP_USER} )
     fi
     start_command+=( rabbitmq-server )
@@ -396,7 +396,7 @@ app_start_server_bg() {
 	# 通过命令或特定端口检测应用是否就绪
     LOG_I "Checking ${APP_NAME} ready status..."
     local start_check=()
-    if _is_run_as_root ; then
+    if is_root ; then
         start_check+=( gosu ${APP_USER} )
     fi
 
