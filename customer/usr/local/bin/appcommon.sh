@@ -313,7 +313,7 @@ app_verify_minimum_env() {
         fi
 
         local validate_port_args=()
-        ! _is_run_as_root && validate_port_args+=("-unprivileged")
+        ! is_root && validate_port_args+=("-unprivileged")
         if ! err=$(validate_port "${validate_port_args[@]}" "$RABBITMQ_MANAGER_PORT_NUMBER"); then
             print_validation_error "An invalid port was specified in the environment variable RABBITMQ_MANAGER_PORT_NUMBER: ${err}."
         fi

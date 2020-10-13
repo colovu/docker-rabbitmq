@@ -4,7 +4,7 @@ version: '3.8'
 # 更多配置参数请参考镜像 README.md 文档中说明
 services:
   rabbitmq:
-    image: 'colovu/rabbitmq:local-latest:3.8'
+    image: 'colovu/rabbitmq:3.8'
     ports:
       - '5672:5672'
       - '61613:61613'
