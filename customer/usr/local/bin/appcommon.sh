@@ -255,7 +255,10 @@ rabbitmq_join_cluster() {
     local join_cluster_args=("$clusternode")
     [[ "$type" = "queue-ram" ]] && join_cluster_args+=("--ram")
 
+    debug_execute "rabbitmqctl" -n "${clusternode}" --offline forget_cluster_node "${RABBITMQ_NODE_NAME}"
+
     debug_execute "rabbitmqctl" stop_app
+    debug_execute "rabbitmqctl" force_reset
 
     local counter=0
     while ! debug_execute "rabbitmq-plugins" --node "$clusternode" is_enabled rabbitmq_management; do
@@ -498,8 +501,12 @@ app_default_init() {
 
         rabbitmq_change_password "$RABBITMQ_USERNAME" "$RABBITMQ_PASSWORD"
 
-        if [[ "$RABBITMQ_NODE_TYPE" != "stats" ]] && [[ -n "$RABBITMQ_CLUSTER_NODE_NAME" ]]; then
-            rabbitmq_join_cluster "$RABBITMQ_CLUSTER_NODE_NAME" "$RABBITMQ_NODE_TYPE"
+        if [[ "${RABBITMQ_NODE_TYPE}" != "stats" ]] && [[ -n "${RABBITMQ_CLUSTER_NODE_NAME}" ]]; then
+            if [[ "${RABBITMQ_CLUSTER_NODE_NAME}" = "${RABBITMQ_NODE_NAME}" ]]; then
+                LOG_W "Current node work as master, skipping join cluster"
+            else
+                rabbitmq_join_cluster "${RABBITMQ_CLUSTER_NODE_NAME}" "${RABBITMQ_NODE_TYPE}"
+            fi
         fi
 
         LOG_I "Enable RabbitMQ Plugins..."
