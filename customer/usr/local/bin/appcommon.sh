@@ -257,7 +257,8 @@ rabbitmq_join_cluster() {
 
     debug_execute "rabbitmqctl" stop_app
     debug_execute "rabbitmqctl" force_reset
-    debug_execute "rabbitmqctl" -n "${clusternode}" --offline forget_cluster_node "${RABBITMQ_NODE_NAME}"
+    #debug_execute "rabbitmqctl" -n "${clusternode}" --offline forget_cluster_node "${RABBITMQ_NODE_NAME}"
+    # rm -rf ${RABBITMQ_DATA_DIR}
 
     local counter=0
     while ! debug_execute "rabbitmq-plugins" --node "$clusternode" is_enabled rabbitmq_management; do
@@ -474,6 +475,17 @@ app_clean_from_restart() {
 app_default_init() {
 	app_clean_from_restart
     LOG_D "Check init status of ${APP_NAME}..."
+
+    if [[ "${RABBITMQ_NODE_TYPE}" != "stats" ]] && [[ -n "${RABBITMQ_CLUSTER_NODE_NAME}" ]]; then
+        if [[ "${RABBITMQ_CLUSTER_NODE_NAME}" = "${RABBITMQ_NODE_NAME}" ]]; then
+            LOG_W "Current node work as master, skipping join cluster"
+        else
+            rm -rf "${RABBITMQ_HOME_DIR}/*"
+            rm -rf "${RABBITMQ_DATA_DIR}/*"
+            mkdir -p "${RABBITMQ_HOME_DIR}"
+            debug_execute "rabbitmqctl" -n "${clusternode}" --offline forget_cluster_node "${RABBITMQ_NODE_NAME}" || :
+        fi
+    fi
 
     # 检测配置文件是否存在
     if [[ ! -f "${APP_CONF_DIR}/.app_init_flag" ]]; then
