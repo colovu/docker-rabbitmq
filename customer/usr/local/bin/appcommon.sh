@@ -483,7 +483,7 @@ app_default_init() {
             rm -rf "${RABBITMQ_HOME_DIR}/*"
             rm -rf "${RABBITMQ_DATA_DIR}/*"
             mkdir -p "${RABBITMQ_HOME_DIR}"
-            debug_execute "rabbitmqctl" -n "${clusternode}" --offline forget_cluster_node "${RABBITMQ_NODE_NAME}" || :
+            debug_execute "rabbitmqctl" -n "${RABBITMQ_CLUSTER_NODE_NAME}" --offline forget_cluster_node "${RABBITMQ_NODE_NAME}" || :
         fi
     fi
 
