@@ -255,10 +255,9 @@ rabbitmq_join_cluster() {
     local join_cluster_args=("$clusternode")
     [[ "$type" = "queue-ram" ]] && join_cluster_args+=("--ram")
 
-    debug_execute "rabbitmqctl" -n "${clusternode}" --offline forget_cluster_node "${RABBITMQ_NODE_NAME}"
-
     debug_execute "rabbitmqctl" stop_app
     debug_execute "rabbitmqctl" force_reset
+    debug_execute "rabbitmqctl" -n "${clusternode}" --offline forget_cluster_node "${RABBITMQ_NODE_NAME}"
 
     local counter=0
     while ! debug_execute "rabbitmq-plugins" --node "$clusternode" is_enabled rabbitmq_management; do
