@@ -1,7 +1,8 @@
-# Ver: 1.5 by Endial Fang (endial@126.com)
+# Ver: 1.7 by Endial Fang (endial@126.com)
 #
 # 当前 Docker 镜像的编译脚本
 
+registry_url :=registry.cn-shenzhen.aliyuncs.com
 app_name :=colovu/rabbitmq
 
 # 生成镜像TAG，类似：
@@ -45,16 +46,6 @@ clearclean: clean
 clean:
 	@echo "Clean all images for current application..."
 	@docker images | grep "$(app_name) " | awk '{print $$3}' | sort -u | xargs -L 1 docker rmi -f
-
-tag:
-	@echo "Add tag: $(local_registory)/$(app_name):latest"
-	@docker tag $(app_name):latest $(local_registory)/$(app_name):latest
-
-push: tag
-	@echo "Push: $(local_registory)/$(app_name):latest"
-	@docker push $(local_registory)/$(app_name):latest
-	@echo "Push: $(app_name):latest"
-	@docker push $(app_name):latest
 
 # 更新所有 colovu 仓库的镜像 
 upgrade: 
