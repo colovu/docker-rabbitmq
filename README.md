@@ -8,12 +8,11 @@
 
 **版本信息**：
 
-- 3.8、latest （ErLang 22.3.0）
 - 3.7 （ErLang 22.3.0）
 
 **镜像信息**
 
-* 镜像地址：colovu/rabbitmq:latest
+* 镜像地址：registry.cn-shenzhen.aliyuncs.com/colovu/rabbitmq:3.7
 
 
 
@@ -22,7 +21,7 @@
 Docker 快速启动命令：
 
 ```shell
-$ docker run -d colovu/rabbitmq:3.7
+$ docker run -d registry.cn-shenzhen.aliyuncs.com/colovu/rabbitmq:3.7
 ```
 
 Docker-Compose 快速启动命令：
@@ -72,7 +71,7 @@ $ docker-compose up -d
 在初始化 RabbitMQ 容器时，如果配置文件不存在，可以在命令行中使用`-e VAR_NAME=VALUE`参数对默认参数进行修改。类似命令如下：
 
 ```shell
-$ docker run -d -e "RABBITMQ_PASSWORD=my_password" --name rabbitmq colovu/rabbitmq:latest
+$ docker run -d -e "RABBITMQ_PASSWORD=my_password" --name rabbitmq registry.cn-shenzhen.aliyuncs.com/colovu/rabbitmq:3.7
 ```
 
 在 Docker Compose 配置文件中类似如下：
